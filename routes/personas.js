@@ -1,9 +1,63 @@
 import express from 'express';
 import Persona from '../models/Persona.js';
+import { verificarToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Crear persona
+router.use(verificarToken);
+
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Persona:
+ *       type: object
+ *       required:
+ *         - nombres
+ *         - apellidos
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Identificador de la persona
+ *         nombres:
+ *           type: string
+ *           example: Carlos
+ *         apellidos:
+ *           type: string
+ *           example: Lopez
+ *         fechaNacimiento:
+ *           type: string
+ *           format: date
+ *           example: '1970-05-15'
+ *         sexo:
+ *           type: string
+ *           enum: [Masculino, Femenino, Otro]
+ *         padres:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: IDs de los padres registrados
+ */
+
+/**
+ * @swagger
+ * /web/agregarPersonas:
+ *   post:
+ *     summary: Registrar una persona
+ *     tags: [Personas]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Persona'
+ *     responses:
+ *       201:
+ *         description: Persona registrada correctamente
+ *       400:
+ *         description: Datos incorrectos
+ */
 router.post('/agregarPersonas', async (req, res) => {
   try {
     const persona = await Persona.create(req.body);
@@ -13,7 +67,16 @@ router.post('/agregarPersonas', async (req, res) => {
   }
 });
 
-// Consultar todas las personas
+/**
+ * @swagger
+ * /web/consultarPersonas:
+ *   get:
+ *     summary: Consultar todas las personas
+ *     tags: [Personas]
+ *     responses:
+ *       200:
+ *         description: Lista de personas
+ */
 router.get('/consultarPersonas', async (req, res) => {
   try {
     const personas = await Persona.find().populate('padres');
@@ -23,7 +86,24 @@ router.get('/consultarPersonas', async (req, res) => {
   }
 });
 
-// Consultar una persona
+/**
+ * @swagger
+ * /web/consultarPersona/{id}:
+ *   get:
+ *     summary: Consultar una persona por ID
+ *     tags: [Personas]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Persona encontrada
+ *       404:
+ *         description: Persona no encontrada
+ */
 router.get('/consultarPersona/:id', async (req, res) => {
   try {
     const persona = await Persona.findById(req.params.id).populate('padres');
@@ -38,7 +118,30 @@ router.get('/consultarPersona/:id', async (req, res) => {
   }
 });
 
-// Actualizar persona
+/**
+ * @swagger
+ * /web/actualizarPersonas/{id}:
+ *   put:
+ *     summary: Actualizar una persona
+ *     tags: [Personas]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Persona'
+ *     responses:
+ *       200:
+ *         description: Persona actualizada
+ *       404:
+ *         description: Persona no encontrada
+ */
 router.put('/actualizarPersonas/:id', async (req, res) => {
   try {
     const persona = await Persona.findByIdAndUpdate(
@@ -57,7 +160,24 @@ router.put('/actualizarPersonas/:id', async (req, res) => {
   }
 });
 
-// Eliminar persona
+/**
+ * @swagger
+ * /web/eliminarPersonas/{id}:
+ *   delete:
+ *     summary: Eliminar una persona
+ *     tags: [Personas]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Persona eliminada
+ *       404:
+ *         description: Persona no encontrada
+ */
 router.delete('/eliminarPersonas/:id', async (req, res) => {
   try {
     const persona = await Persona.findByIdAndDelete(req.params.id);
@@ -77,7 +197,24 @@ router.delete('/eliminarPersonas/:id', async (req, res) => {
   }
 });
 
-// Consultar árbol familiar
+/**
+ * @swagger
+ * /web/consultarArbol/{id}:
+ *   get:
+ *     summary: Consultar árbol familiar hasta segundo grado
+ *     tags: [Personas]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Persona y sus relaciones familiares
+ *       404:
+ *         description: Persona no encontrada
+ */
 router.get('/consultarArbol/:id', async (req, res) => {
   try {
     const persona = await Persona.findById(req.params.id).populate({

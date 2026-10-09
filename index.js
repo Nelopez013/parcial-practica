@@ -2,7 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './config/swagger.js';
 import personasRoutes from './routes/personas.js';
+import authRoutes from './routes/auth.js';
+import { registrar, iniciarSesion } from './controllers/authController.js';
+
+
 
 dotenv.config();
 
@@ -11,12 +17,17 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.use('/web/auth', authRoutes);
+app.use('/web', personasRoutes);
+
 app.get('/', (req, res) => {
   res.json({
-    mensaje: 'API de árbol genealógico funcionando'
+    mensaje: 'API de árbol genealógico funcionando',
+    documentacion: '/api-docs'
   });
 });
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/web', personasRoutes);
 
 const PORT = process.env.PORT || 3000;
