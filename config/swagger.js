@@ -33,6 +33,13 @@ const options = {
       }
     },
 
+    // Aplicar autenticación JWT por defecto a los endpoints
+    security: [
+      {
+        bearerAuth: []
+      }
+    ],
+
     tags: [
       {
         name: 'Personas',
